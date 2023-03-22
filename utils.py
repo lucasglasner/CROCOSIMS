@@ -15,11 +15,45 @@ import xesmf as xe
 import xarray as xr
 import numpy as np
 import pandas as pd
-import scipy.signal as signal
+import datetime
 
 # ---------------------------------------------------------------------------- #
 # ---------------------------- Utilities functions --------------------------- #
 # ---------------------------------------------------------------------------- #
+
+
+def fill_borders(data, x_name='lon', y_name='lat'):
+    """
+    Fill all nans with forward and backward filling.
+
+    Args:
+        data (xarray): 
+
+    Returns:
+        xarray: 
+    """
+    #fill bays with pixels from the top
+    data = data.bfill(y_name, limit=4)
+    data = data.ffill(x_name).bfill(x_name)
+    data = data.ffill(y_name).bfill(y_name)
+    return data
+
+def fix_crocotime(DATA,YORIG):
+    """
+    Grab simulation time and transform to datetime objects based on given YORIG
+
+    Args:
+        DATA (XDataset, XDataArray): CROCO simulation data, with "time" coordinate 
+        YORIG (str): Given reference date
+
+    Returns:
+        XDataset, XDataArray: Data with fixed time coordinate
+    """
+    ORIG = pd.to_datetime(YORIG)
+    new_time = pd.to_datetime([datetime.timedelta(seconds=t.item())+ORIG
+                               for t in DATA.time])
+    DATA['time'] = new_time
+    return DATA.sortby('time')
 
 def croco_sellonlatbox(data, lonmin, lonmax, latmin, latmax):
     """
@@ -50,3 +84,20 @@ def croco_sellonlatbox(data, lonmin, lonmax, latmin, latmax):
     print(ymin,ymax)
     data = data.sel(eta_rho=slice(ymin,ymax), xi_rho=slice(xmin,xmax))
     return data
+
+def croco_selpoint(data, lon, lat):
+    """
+    This functions finds the nearest point for the given lat,lon 
+    coordinates.
+
+    Args:
+        data (_type_): _description_
+        lon (_type_): _description_
+        lat (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    eta = abs(data.lat_rho-lat).argmin(axis=0)[0]
+    xi  = abs(data.lon_rho-lon).argmin(axis=1)[0]
+    return data.sel(eta_rho=eta, xi_rho=xi)
