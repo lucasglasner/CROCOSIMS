@@ -2,12 +2,12 @@
 # Grab croco*.out files and extract kinetic, potential and total energy time series on execution time.
 
 
-yrstart=1999
-yrend=2011
+yrstart=2000
+yrend=2001
 mstart=1
 mend=12
-sim_name='crocod0'
-outdirectory="DESALADORAS_RUND0/OUTPUT"
+sim_name='crocod1'
+outdirectory="/ceaza/lucas/CROCO/DESALADORAS_RUND1/OUTPUT"
 for yr in $(seq $yrstart $yrend); do
 	for m in $(seq ${mstart} ${mend}); do
 		timestamp=Y${yr}M${m}
@@ -23,6 +23,8 @@ for yr in $(seq $yrstart $yrend); do
 		sed -i '/BULK/d' .${sim_name}_status.${timestamp}
 		sed -i '/AVG/d' .${sim_name}_status.${timestamp}
 		sed -i '/HIS/d' .${sim_name}_status.${timestamp}
+		sed -i '/WRT/d' .${sim_name}_status.${timestamp}
+		sed -i '/dapl/d' .${sim_name}_status.${timestamp}
 		sed -i 's/  //g' .${sim_name}_status.${timestamp}
 	done
 done
@@ -30,7 +32,7 @@ done
 
 head -n .${sim_name}_status_Y${yrstart}M${mstart} > ${sim_name}_status.txt
 for f in .${sim_name}*; do
-	tail -n +1 $f >> ${sim_name}_status.txt
+	tail -n +1 $f >> ${sim_name}_status.out
 done
 
 rm .${sim_name}*		
