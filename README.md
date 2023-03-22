@@ -8,22 +8,22 @@ routines and packages like xarray, scipy, scikit-learn, etc.
 
 The current repository status (tree -L 2) is as follows: 
 
-.
-├── load.py
-├── numerics.py
-├── README.md
-├── SIMSEQUIA
-│   ├── crocod0_status.txt
-│   ├── exploration_rund0control.ipynb
-│   ├── exploration_rund0panul.ipynb
-│   ├── grids.ipynb
-│   └── plots
-├── simulation_status.sh
-└── TESTSIM
-    ├── create_zarrstore.ipynb
-    ├── croco_testsim_atmosphericforcing.ipynb
-    ├── croco_testsim_exp1.ipynb
-    ├── croco_testsim_exp2.ipynb
-    ├── croco_testsim_exp3.ipynb
-    ├── data
-    └── plots
+. 
+├── load.py 
+├── numerics.py 
+├── README.md 
+├── SIMSEQUIA 
+│   ├── crocod0_status.txt 
+│   ├── exploration_rund0control.ipynb 
+│   ├── exploration_rund0panul.ipynb 
+│   ├── grids.ipynb 
+│   └── plots 
+├── simulation_status.sh 
+└── TESTSIM 
+    ├── create_zarrstore.ipynb 
+    ├── croco_testsim_atmosphericforcing.ipynb 
+    ├── croco_testsim_exp1.ipynb 
+    ├── croco_testsim_exp2.ipynb 
+    ├── croco_testsim_exp3.ipynb 
+    ├── data 
+    └── plots 
