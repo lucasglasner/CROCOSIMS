@@ -8,8 +8,8 @@ routines and packages like xarray, scipy, scikit-learn, etc.
 
 The current repository status (tree -L 2) is as follows: 
 
-. 
-├── load.py 
+. \
+├── load.py \
 ├── numerics.py 
 ├── README.md 
 ├── SIMSEQUIA 
