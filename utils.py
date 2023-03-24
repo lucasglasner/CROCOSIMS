@@ -101,3 +101,20 @@ def croco_selpoint(data, lon, lat):
     eta = abs(data.lat_rho-lat).argmin(axis=0)[0]
     xi  = abs(data.lon_rho-lon).argmin(axis=1)[0]
     return data.sel(eta_rho=eta, xi_rho=xi)
+
+
+
+def trim_memory() -> int:
+    """
+    Following dask docs: 
+    "It is possible to forcefully release allocated but unutilized memory as follows:
+    This should be only used as a one-off debugging experiment. Watch the dashboard while running the above code.
+    If unmanaged worker memory (on the “Bytes stored” plot) decreases significantly after calling client.run(trim_memory),
+    then move on to the next section. Otherwise, you likely do have a memory leak.""
+    How to use:
+        client.run(trim_memory)
+    
+    """
+    import ctypes
+    libc = ctypes.CDLL("libc.so.6")
+    return libc.malloc_trim(0)
