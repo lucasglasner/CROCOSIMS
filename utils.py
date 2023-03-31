@@ -103,7 +103,6 @@ def croco_selpoint(data, lon, lat):
     return data.sel(eta_rho=eta, xi_rho=xi)
 
 
-
 def trim_memory() -> int:
     """
     Following dask docs: 
