@@ -1,7 +1,8 @@
 **/*.nc
 *.nc
 __pycache__
-**/*.outTESTSIM/data/MUR
+**/*.out
+TESTSIM/data/MUR
 TESTSIM/data/OSTIA
 TESTSIM/data/NCCHILE
 TESTSIM/data/GLORYS12V1
