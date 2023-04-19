@@ -166,31 +166,58 @@ def utc_to_local(series, gap=4):
     series.index = series.index-pd.Timedelta(hours=gap)
     return series
 
-def center_crocogrid(data,variables):
+def climatology1d(data, times, period=365, nharmonics=3):
     """
-    This function grabs a croco model outputs and moves the 
-    arakawa-C edges variables to the center of the grid.
-    (like water velocities...) 
+    This function computes the annual cycle of a time series
+    taking advantage of the fourier series decomposition and
+    that seasonal changes are equal to the 365 time scale
+    variability.
+
+    By defaults the function assumes the input data has a
+    daily sampling, if not modify "period" argument properly.
 
     Args:
-        data (xarray): input dataset
-        variables (list): list of variables to transform
+        data (array): (n, ) dimensional array with time-ordered data
+        times (array):(n, ) dimensional array of time objects
+        period (int, optional): Period to remove. Defaults to 365.
+        nharmonics (int, optional): Number of harmonics related to
+        the fundamental frequency to remove. Defaults to 3.
 
     Returns:
-        xarray: dataset with variables in the center of the grid 
+        array: (365, ) dimensional array with the climatological
+        value of each day.
+
+    Reference: Statistical Methods in the Atmospheric Sciences
+              Daniel S. Wilks. Part II Univariate Statistics,
+              Chapter 9.4: Frequency Domain - Harmonic Analysis
+
+    Example 9.8: Transforming a Cosine Wave to Represent an Annual Cycle
+    Section 9.4.3: Estimation of the Amplitude and Phase of a Single Harmonic
+    Section 9.4.4: Higher Harmonics
+    Example 9.11: A more Complicated Annual Cycle
     """
-    for v in variables:
-        if 'eta_v' in data[v].dims:
-            x = data[v].interp(eta_v=data.eta_rho.values)
-            x = x.rename({'eta_v':'eta_rho'})
-            data = data.drop(v)
-            data[v]=x
-        elif 'xi_u' in data[v].dims:
-            x = data[v].interp(xi_u=data.xi_rho.values)
-            x = x.rename({'xi_u':'xi_rho'})
-            data = data.drop(v)
-            data[v]=x
-        else:
-            pass
-    data = data.drop(['xi_u','eta_v', 'lon_v', 'lat_v','lon_u','lat_u'])
-    return data
+
+    # If data has nans return full nan vector
+    if np.isnan(data).sum()!=0:
+        return np.nan*np.ones(365)
+    # Transform data to pandas timeseries and find sample frequency
+    data   = pd.Series(data, index = pd.to_datetime(times))
+    # Remove leap day of leap years and NaNs
+    data   = data[~((data.index.month==2)&(data.index.day==29))]
+    # Number of timestemps
+    n      = len(data)
+    # Compute sample mean
+    clim  = np.mean(data)*np.ones(n)
+    for k in range(nharmonics):
+        # Target frequency
+        freq       = 2*np.pi*(k+1)*np.arange(1,n+1)/period
+        # Compute harmonic coefficient as a "naive" discrete
+        # fourier transform
+        Ak        = (2/n)*np.sum(data*np.cos(freq))
+        Bk        = (2/n)*np.sum(data*np.sin(freq))
+        # Add up harmonics to the annual cycle
+        clim      = clim+Ak*np.cos(freq)+Bk*np.sin(freq)
+    clim = pd.Series(clim, index=data.index).to_xarray().rename({'index':'time'})
+    clim = clim.to_dataset(name='_').convert_calendar('noleap')['_']
+    clim = clim.groupby("time.dayofyear").mean()
+    return clim.to_series()

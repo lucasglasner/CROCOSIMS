@@ -55,6 +55,7 @@ def fix_crocotime(DATA,YORIG):
     DATA['time'] = new_time
     return DATA.sortby('time')
 
+
 def croco_sellonlatbox(data, lonmin, lonmax, latmin, latmax):
     """
     This functions grabs a croco output and slice it to the
@@ -73,16 +74,44 @@ def croco_sellonlatbox(data, lonmin, lonmax, latmin, latmax):
     Returns:
         data: sliced data to the user defined latlon box 
     """
-    data = data.sortby('eta_rho').sortby('xi_rho')
     geoindex = ((data.lon_rho > lonmin) & (data.lon_rho<lonmax) & (data.lat_rho>latmin) & (data.lat_rho < latmax)).load()
     geoindex = np.argwhere(geoindex.values)
     xmin = min(geoindex[:,1])
     xmax = max(geoindex[:,1])
     ymin = min(geoindex[:,0])
     ymax = max(geoindex[:,0])
-    print(xmin,xmax)
-    print(ymin,ymax)
+    # print(xmin,xmax)
+    # print(ymin,ymax)
     data = data.sel(eta_rho=slice(ymin,ymax), xi_rho=slice(xmin,xmax))
+    return data
+
+def center_crocogrid(data,variables):
+    """
+    This function grabs a croco model outputs and moves the 
+    arakawa-C edges variables to the center of the grid.
+    (like water velocities...) 
+
+    Args:
+        data (xarray): input dataset
+        variables (list): list of variables to transform
+
+    Returns:
+        xarray: dataset with variables in the center of the grid 
+    """
+    for v in variables:
+        if 'eta_v' in data[v].dims:
+            x = data[v].interp(eta_v=data.eta_rho.values, method='nearest')
+            x = x.rename({'eta_v':'eta_rho'})
+            data = data.drop(v)
+            data[v]=x
+        elif 'xi_u' in data[v].dims:
+            x = data[v].interp(xi_u=data.xi_rho.values, method='nearest')
+            x = x.rename({'xi_u':'xi_rho'})
+            data = data.drop(v)
+            data[v]=x
+        else:
+            pass
+    data = data.drop(['xi_u','eta_v', 'lon_v', 'lat_v','lon_u','lat_u'])
     return data
 
 def croco_selpoint(data, lon, lat):
