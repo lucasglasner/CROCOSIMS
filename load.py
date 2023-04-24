@@ -17,8 +17,8 @@ from glob import glob
 import numpy as np
 import pandas as pd
 import datetime
-from utils import fix_crocotime
-from numerics import center_crocogrid
+from utils import fix_crocotime,center_crocogrid
+
 
 # ---------------------------------------------------------------------------- #
 # ---------------------------- loading data functions ------------------------ #
