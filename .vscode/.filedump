@@ -1,0 +1,6 @@
+
+		begin
+      f = addfile("/home/lucasg/projects/CROCOSIMS/SIMSEQUIA/data/coastalpixels/coastalpixels_avg_Y2001M1.nc","r")
+      print(f)
+		end
+    

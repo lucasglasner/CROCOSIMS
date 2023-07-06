@@ -114,7 +114,7 @@ def center_crocogrid(data,variables):
     data = data.drop(['xi_u','eta_v', 'lon_v', 'lat_v','lon_u','lat_u'])
     return data
 
-def croco_selpoint(data, lon, lat):
+def croco_selpoint(data, lon, lat, interp=False):
     """
     This functions finds the nearest point for the given lat,lon 
     coordinates.
@@ -127,9 +127,15 @@ def croco_selpoint(data, lon, lat):
     Returns:
         _type_: _description_
     """
-    eta = abs(data.lat_rho-lat).argmin(axis=0)[0]
-    xi  = abs(data.lon_rho-lon).argmin(axis=1)[0]
-    return data.sel(eta_rho=eta, xi_rho=xi)
+    eta = abs(data.lat_rho-lat).argmin(axis=0)[0].item()
+    xi  = abs(data.lon_rho-lon).argmin(axis=1)[0].item()
+    if interp:
+        data = data.isel(eta_rho=eta).isel(xi_rho=xi)
+    else:
+        x = data.isel(eta_rho=eta).isel(xi_rho=xi)
+        eta,xi = x.eta_rho.item(), x.xi_rho.item()
+        data = data.interp(xi_rho=xi, eta_rho=eta)
+    return data
 
 
 def trim_memory() -> int:
